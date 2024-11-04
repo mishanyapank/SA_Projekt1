@@ -1,0 +1,119 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Set random seed for reproducibility
+np.random.seed(42)
+
+# 1. Generate original signal
+size = 1000
+t = np.linspace(0, 6 * np.pi, size)
+s = np.sin(t)
+
+# Plot original signal
+plt.figure(figsize=(10, 4))
+plt.plot(t, s)
+plt.title('Oryginalny sygnał sinusoidalny')
+plt.grid(True)
+plt.show()
+
+# 2. Add noise to signal
+variance = 0.1
+noise = np.random.normal(0, np.sqrt(variance), size)
+noisy_signal = s + noise
+
+# Plot original signal and noise
+plt.figure(figsize=(10, 4))
+plt.plot(t, s, label='Oryginalny sygnał')
+plt.plot(t, noise, label='Szum')
+plt.title('Oryginalny sygnał sinusoidalny oraz szum')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# Plot noisy signal
+plt.figure(figsize=(10, 4))
+plt.plot(t, noisy_signal)
+plt.title('Sygnał sinusoidalny z nałożonym szumem')
+plt.grid(True)
+plt.show()
+
+# 3. Signal estimation function
+def estimate_signal(signal, H):
+    estimated = np.zeros(len(signal))
+    for i in range(len(signal)):
+        start_idx = max(0, i-H+1)
+        estimated[i] = np.mean(signal[start_idx:i+1])
+    return estimated
+
+# Estimate signal for H=5
+H_5 = estimate_signal(noisy_signal, 5)
+plt.figure(figsize=(10, 4))
+plt.plot(t, H_5)
+plt.title('Estymacja zaszumionego sygnału dla H = 5')
+plt.grid(True)
+plt.show()
+
+# Estimate signal for H=10
+H_10 = estimate_signal(noisy_signal, 10)
+plt.figure(figsize=(10, 4))
+plt.plot(t, noisy_signal, label='Sygnał zaszumiony', alpha=0.5)
+plt.plot(t, H_10, label='Sygnał estymowany')
+plt.title('Estymacja zaszumionego sygnału dla H = 10 oraz sygnał zaszumiony')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# Estimate signal for H=50
+H_50 = estimate_signal(noisy_signal, 50)
+plt.figure(figsize=(10, 4))
+plt.plot(t, noisy_signal, label='Sygnał zaszumiony', alpha=0.5)
+plt.plot(t, H_50, label='Sygnał estymowany')
+plt.title('Estymacja zaszumionego sygnału dla H = 50 oraz sygnał zaszumiony')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# Estimate signal for H=500
+H_500 = estimate_signal(noisy_signal, 500)
+plt.figure(figsize=(10, 4))
+plt.plot(t, noisy_signal, label='Sygnał zaszumiony', alpha=0.5)
+plt.plot(t, H_500, label='Sygnał estymowany')
+plt.title('Estymacja zaszumionego sygnału dla H = 500 oraz sygnał zaszumiony')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# 4. Calculate MSE for different H values
+H_range = range(1, 101)
+mse_values = []
+for h in H_range:
+    estimated = estimate_signal(noisy_signal, h)
+    mse = np.mean((s - estimated)**2)
+    mse_values.append(mse)
+
+# Plot MSE vs H
+plt.figure(figsize=(10, 4))
+plt.plot(H_range, mse_values)
+plt.title('Zależność MSE od H')
+plt.xlabel('H')
+plt.ylabel('MSE')
+plt.grid(True)
+plt.show()
+
+# 5. Calculate MSE for different variances
+variance_range = np.linspace(0, 0.5, 50)
+mse_variance = []
+for var in variance_range:
+    noise = np.random.normal(0, np.sqrt(var), size)
+    noisy = s + noise
+    mse = np.mean((s - noisy)**2)
+    mse_variance.append(mse)
+
+# Plot MSE vs variance
+plt.figure(figsize=(10, 4))
+plt.plot(variance_range, mse_variance)
+plt.title('Zależność błędu średniokwadratowego od zadanej wielkości wariancji')
+plt.xlabel('Wariancja')
+plt.ylabel('MSE')
+plt.grid(True)
+plt.show()
